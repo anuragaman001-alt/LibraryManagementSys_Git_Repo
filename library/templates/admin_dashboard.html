@@ -1,0 +1,84 @@
+{% extends 'base.html' %}
+{% block title %}Admin Dashboard - LMS{% endblock %}
+
+{% block content %}
+<h2>Admin Dashboard</h2>
+
+<p><a href="{% url 'add_book' %}" class="btn">+ Add New Book</a></p>
+
+<h3>📖 All Books</h3>
+{% if books %}
+<table>
+    <tr>
+        <th>Title</th>
+        <th>Author</th>
+        <th>ISBN</th>
+        <th>Status</th>
+        <th>Action</th>
+    </tr>
+    {% for book in books %}
+    <tr>
+        <td>{{ book.title }}</td>
+        <td>{{ book.author }}</td>
+        <td>{{ book.isbn }}</td>
+        <td>
+            {% if book.available %}
+                <span class="badge-available">Available</span>
+            {% else %}
+                <span class="badge-unavailable">Issued</span>
+            {% endif %}
+        </td>
+        <td>
+            <form method="post" action="{% url 'delete_book' book.id %}" style="display:inline"
+                  onsubmit="return confirm('Delete {{ book.title }}?')">
+                {% csrf_token %}
+                <button type="submit" class="btn btn-danger">Delete</button>
+            </form>
+        </td>
+    </tr>
+    {% endfor %}
+</table>
+{% else %}
+<p>No books in the library yet.</p>
+{% endif %}
+
+<h3>👥 Registered Members</h3>
+{% if users %}
+<table>
+    <tr><th>Username</th><th>Name</th><th>Email</th></tr>
+    {% for member in users %}
+    <tr>
+        <td>{{ member.user.username }}</td>
+        <td>{{ member.name }}</td>
+        <td>{{ member.email }}</td>
+    </tr>
+    {% endfor %}
+</table>
+{% else %}
+<p>No members registered yet.</p>
+{% endif %}
+
+<h3>📋 All Issued Books</h3>
+{% if issues %}
+<table>
+    <tr><th>Book</th><th>Member</th><th>Issue Date</th><th>Return Date</th><th>Status</th></tr>
+    {% for issue in issues %}
+    <tr>
+        <td>{{ issue.book.title }}</td>
+        <td>{{ issue.member.user.username }}</td>
+        <td>{{ issue.issue_date }}</td>
+        <td>{{ issue.return_date|default:"—" }}</td>
+        <td>
+            {% if issue.return_date %}
+                <span class="badge-available">Returned</span>
+            {% else %}
+                <span class="badge-unavailable">Active</span>
+            {% endif %}
+        </td>
+    </tr>
+    {% endfor %}
+</table>
+{% else %}
+<p>No books have been issued yet.</p>
+{% endif %}
+{% endblock %}

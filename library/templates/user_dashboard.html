@@ -1,0 +1,52 @@
+{% extends 'base.html' %}
+{% block title %}My Dashboard - LMS{% endblock %}
+
+{% block content %}
+<h2>Welcome, {{ user.username }}! 👋</h2>
+
+<h3>📚 Available Books</h3>
+{% if books %}
+<table>
+    <tr>
+        <th>Title</th>
+        <th>Author</th>
+        <th>ISBN</th>
+        <th>Action</th>
+    </tr>
+    {% for book in books %}
+    <tr>
+        <td>{{ book.title }}</td>
+        <td>{{ book.author }}</td>
+        <td>{{ book.isbn }}</td>
+        <td>
+            {% if book.available %}
+                <a href="{% url 'issue_book' book.id %}" class="btn">Issue</a>
+            {% else %}
+                <span class="badge-unavailable">Not Available</span>
+            {% endif %}
+        </td>
+    </tr>
+    {% endfor %}
+</table>
+{% else %}
+<p>No books available in the library.</p>
+{% endif %}
+
+<h3>📖 My Borrowed Books</h3>
+{% if my_books %}
+<table>
+    <tr><th>Title</th><th>Issue Date</th><th>Action</th></tr>
+    {% for issue in my_books %}
+    <tr>
+        <td>{{ issue.book.title }}</td>
+        <td>{{ issue.issue_date }}</td>
+        <td>
+            <a href="{% url 'return_book' issue.id %}" class="btn">Return</a>
+        </td>
+    </tr>
+    {% endfor %}
+</table>
+{% else %}
+<p>You have no books currently borrowed.</p>
+{% endif %}
+{% endblock %}
