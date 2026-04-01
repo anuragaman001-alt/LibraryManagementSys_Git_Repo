@@ -6,7 +6,7 @@ SECRET_KEY = 'django-insecure-&_9vrg)ylr$&x3k*r))ufl2be-h=f(+(g_1tglmz4cr)qerot4
 
 DEBUG = True
 
-ALLOWED_HOSTS = ['13.63.65.125', 'ec2-13-63-65-125.eu-north-1.compute.amazonaws.com' ]
+ALLOWED_HOSTS = ['13.63.65.125', 'ec2-13-63-65-125.eu-north-1.compute.amazonaws.com']
 
 INSTALLED_APPS = [
     'django.contrib.admin',
@@ -33,7 +33,6 @@ ROOT_URLCONF = 'lms_project.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        # Templates are inside the library app's templates folder
         'DIRS': [BASE_DIR / 'library' / 'templates'],
         'APP_DIRS': True,
         'OPTIONS': {
@@ -63,14 +62,11 @@ TIME_ZONE = 'Europe/Dublin'
 USE_I18N = True
 USE_TZ = True
 
-STATIC_URL = 'static/'
-# No custom STATICFILES_DIRS needed; library/static/ is picked up via APP_DIRS
+STATIC_URL = '/static/'
+STATIC_ROOT = BASE_DIR / 'staticfiles'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-LOGIN_URL = 'login'
-LOGIN_REDIRECT_URL = 'dashboard'
-LOGOUT_REDIRECT_URL = '/'
-
-
-
+LOGIN_URL = '/login/'
+LOGIN_REDIRECT_URL = '/'
+LOGOUT_REDIRECT_URL = '/login/'
