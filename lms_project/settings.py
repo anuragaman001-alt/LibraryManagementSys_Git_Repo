@@ -6,7 +6,7 @@ SECRET_KEY = 'django-insecure-&_9vrg)ylr$&x3k*r))ufl2be-h=f(+(g_1tglmz4cr)qerot4
 
 DEBUG = True
 
-ALLOWED_HOSTS = ['*']
+ALLOWED_HOSTS = ['13.63.65.125', 'ec2-13-63-65-125.eu-north-1.compute.amazonaws.com' ]
 
 INSTALLED_APPS = [
     'django.contrib.admin',
@@ -70,4 +70,7 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 LOGIN_URL = 'login'
 LOGIN_REDIRECT_URL = 'dashboard'
-LOGOUT_REDIRECT_URL = 'login'
+LOGOUT_REDIRECT_URL = '/'
+
+
+

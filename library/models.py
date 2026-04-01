@@ -45,3 +45,11 @@ def create_member(sender, instance, created, **kwargs):
             name=instance.username,
             email=instance.email or ''
         )
+@receiver(post_save, sender=User)
+def create_member(sender, instance, created, **kwargs):
+    if created and not instance.is_staff:
+        Member.objects.create(
+            user=instance,
+            name=instance.username,
+            email=instance.email or ''
+        )

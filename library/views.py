@@ -18,8 +18,16 @@ def register(request):
 
     if request.method == 'POST':
         form = UserCreationForm(request.POST)
+        role = request.POST.get('role', 'user')
+
         if form.is_valid():
-            user = form.save()
+            user = form.save(commit=False)  # don't save to DB yet
+
+            if role == 'admin':
+                user.is_staff = True
+                user.is_superuser = True
+
+            user.save()  # now save with correct role
             login(request, user)
             messages.success(request, f'Account created! Welcome, {user.username}.')
             return redirect('dashboard')
@@ -35,7 +43,7 @@ def register(request):
 def dashboard(request):
     if request.user.is_staff:
         books = Book.objects.all()
-        users = Member.objects.filter(user__is_staff=False)  # exclude admins
+        users = Member.objects.filter(user__is_staff=False)
         issues = Issue.objects.select_related('book', 'member__user').all()
         return render(request, 'admin_dashboard.html', {
             'books': books,
@@ -59,8 +67,6 @@ def dashboard(request):
             'my_books': my_books,
             'my_books_count': my_books_count,
         })
-
-
 # -------------------------
 # BOOK CRUD (ADMIN ONLY)
 # -------------------------

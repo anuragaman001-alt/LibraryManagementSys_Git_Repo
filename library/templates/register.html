@@ -7,6 +7,13 @@
     <form method="post">
         {% csrf_token %}
         {{ form.as_p }}
+
+        <label for="role"><strong>Register as:</strong></label>
+        <select name="role" id="role" style="margin-bottom:14px;">
+            <option value="user">User</option>
+            <option value="admin">Admin</option>
+        </select>
+
         <input type="submit" value="Register">
     </form>
     <p>Already have an account? <a href="{% url 'login' %}">Login</a></p>
