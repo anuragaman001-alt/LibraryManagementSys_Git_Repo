@@ -29,11 +29,14 @@
             {% endif %}
         </td>
         <td>
-            <form method="post" action="{% url 'delete_book' book.id %}" style="display:inline"
-                  onsubmit="return confirm('Delete {{ book.title }}?')">
-                {% csrf_token %}
-                <button type="submit" class="btn btn-danger">Delete</button>
-            </form>
+            {% if book.id %}
+                <a href="{% url 'update_book' book.id %}" class="btn" style="margin-right:6px;">Edit</a>
+                <form method="POST" action="{% url 'delete_book' book.id %}" style="display:inline"
+                      onsubmit="return confirm('Delete {{ book.title }}?')">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-danger">Delete</button>
+                </form>
+            {% endif %}
         </td>
     </tr>
     {% endfor %}
@@ -45,12 +48,24 @@
 <h3>👥 Registered Members</h3>
 {% if users %}
 <table>
-    <tr><th>Username</th><th>Name</th><th>Email</th></tr>
+    <tr>
+        <th>Username</th>
+        <th>Name</th>
+        <th>Email</th>
+        <th>Action</th>
+    </tr>
     {% for member in users %}
     <tr>
         <td>{{ member.user.username }}</td>
         <td>{{ member.name }}</td>
         <td>{{ member.email }}</td>
+        <td>
+            <form method="POST" action="{% url 'delete_member' member.id %}"
+                  onsubmit="return confirm('Delete member {{ member.user.username }}? This cannot be undone.')">
+                {% csrf_token %}
+                <button type="submit" class="btn btn-danger">Delete</button>
+            </form>
+        </td>
     </tr>
     {% endfor %}
 </table>
@@ -61,7 +76,13 @@
 <h3>📋 All Issued Books</h3>
 {% if issues %}
 <table>
-    <tr><th>Book</th><th>Member</th><th>Issue Date</th><th>Return Date</th><th>Status</th></tr>
+    <tr>
+        <th>Book</th>
+        <th>Member</th>
+        <th>Issue Date</th>
+        <th>Return Date</th>
+        <th>Status</th>
+    </tr>
     {% for issue in issues %}
     <tr>
         <td>{{ issue.book.title }}</td>
@@ -81,4 +102,5 @@
 {% else %}
 <p>No books have been issued yet.</p>
 {% endif %}
+
 {% endblock %}

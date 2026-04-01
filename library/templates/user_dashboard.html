@@ -11,7 +11,7 @@
         <th>Title</th>
         <th>Author</th>
         <th>ISBN</th>
-        <th>Action</th>
+        <th>Status</th>
     </tr>
     {% for book in books %}
     <tr>
@@ -20,7 +20,14 @@
         <td>{{ book.isbn }}</td>
         <td>
             {% if book.available %}
-                <a href="{% url 'issue_book' book.id %}" class="btn">Issue</a>
+                {% if my_books_count >= 2 %}
+                    <span class="badge-unavailable">Limit Reached</span>
+                {% else %}
+                    <form method="POST" action="{% url 'issue_book' book.id %}">
+                        {% csrf_token %}
+                        <button type="submit" class="btn">Borrow</button>
+                    </form>
+                {% endif %}
             {% else %}
                 <span class="badge-unavailable">Not Available</span>
             {% endif %}
@@ -35,17 +42,27 @@
 <h3>📖 My Borrowed Books</h3>
 {% if my_books %}
 <table>
-    <tr><th>Title</th><th>Issue Date</th><th>Action</th></tr>
+    <tr>
+        <th>Title</th>
+        <th>Author</th>
+        <th>Borrow Date</th>
+        <th>Action</th>
+    </tr>
     {% for issue in my_books %}
     <tr>
         <td>{{ issue.book.title }}</td>
+        <td>{{ issue.book.author }}</td>
         <td>{{ issue.issue_date }}</td>
         <td>
-            <a href="{% url 'return_book' issue.id %}" class="btn">Return</a>
+            <form method="POST" action="{% url 'return_book' issue.id %}">
+                {% csrf_token %}
+                <button type="submit" class="btn btn-danger">Return</button>
+            </form>
         </td>
     </tr>
     {% endfor %}
 </table>
+<p style="margin-top:8px; color:#666;">You have borrowed <strong>{{ my_books_count }}</strong> of <strong>2</strong> allowed books.</p>
 {% else %}
 <p>You have no books currently borrowed.</p>
 {% endif %}

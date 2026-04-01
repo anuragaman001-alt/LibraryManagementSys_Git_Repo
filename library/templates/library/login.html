@@ -2,13 +2,29 @@
 {% block title %}Login - LMS{% endblock %}
 
 {% block content %}
-<div class="auth-box">
-    <h2>Login</h2>
-    <form method="post">
-        {% csrf_token %}
-        {{ form.as_p }}
-        <input type="submit" value="Login">
-    </form>
-    <p>Don't have an account? <a href="{% url 'register' %}">Register here</a></p>
-</div>
+<h2>Login</h2>
+<form method="POST" style="max-width: 480px;">
+    {% csrf_token %}
+
+    {% if form.errors %}
+    <p style="color:red;">Invalid username or password. Please try again.</p>
+    {% endif %}
+
+    <label for="id_username">Username:</label>
+    <input type="text" id="id_username" name="username" required autofocus placeholder="Enter username">
+
+    <label for="id_password">Password:</label>
+    <input type="password" id="id_password" name="password" required placeholder="Enter password">
+
+    <input type="submit" value="Login">
+
+    <p style="margin-top: 12px;">
+        Don't have an account? <a href="{% url 'register' %}">Register here</a>
+    </p>
+</form>
 {% endblock %}
+```
+
+**Important:** This file must be saved at:
+```
+library/templates/library/login.html

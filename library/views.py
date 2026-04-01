@@ -35,9 +35,8 @@ def register(request):
 def dashboard(request):
     if request.user.is_staff:
         books = Book.objects.all()
-        users = Member.objects.all()
+        users = Member.objects.filter(user__is_staff=False)  # exclude admins
         issues = Issue.objects.select_related('book', 'member__user').all()
-
         return render(request, 'admin_dashboard.html', {
             'books': books,
             'users': users,
@@ -50,17 +49,20 @@ def dashboard(request):
                 member=request.user.member,
                 return_date__isnull=True
             ).select_related('book')
+            my_books_count = my_books.count()
         except Member.DoesNotExist:
             my_books = []
+            my_books_count = 0
 
         return render(request, 'user_dashboard.html', {
             'books': books,
             'my_books': my_books,
+            'my_books_count': my_books_count,
         })
 
 
 # -------------------------
-# BOOK CRUD (ADMIN)
+# BOOK CRUD (ADMIN ONLY)
 # -------------------------
 
 @login_required
@@ -85,17 +87,42 @@ def add_book(request):
 
 
 @login_required
-def delete_book(request, book_id):
+def update_book(request, book_id):
     if not request.user.is_staff:
         messages.error(request, 'Access denied.')
         return redirect('dashboard')
 
     book = get_object_or_404(Book, id=book_id)
-    # Only allow POST for destructive actions
+
     if request.method == 'POST':
-        book_title = book.title
-        book.delete()
-        messages.success(request, f'Book "{book_title}" deleted.')
+        title = request.POST.get('title', '').strip()
+        author = request.POST.get('author', '').strip()
+        isbn = request.POST.get('isbn', '').strip()
+
+        if title and author and isbn:
+            book.title = title
+            book.author = author
+            book.isbn = isbn
+            book.save()
+            messages.success(request, f'Book "{title}" updated successfully.')
+            return redirect('dashboard')
+        else:
+            messages.error(request, 'All fields are required.')
+
+    return render(request, 'update_book.html', {'book': book})
+
+
+@login_required
+def delete_member(request, member_id):
+    if not request.user.is_staff:
+        messages.error(request, 'Access denied.')
+        return redirect('dashboard')
+
+    member = get_object_or_404(Member, id=member_id)
+    if request.method == 'POST':
+        username = member.user.username
+        member.user.delete()  # deletes User and Member together (CASCADE)
+        messages.success(request, f'Member "{username}" deleted.')
     return redirect('dashboard')
 
 
@@ -111,36 +138,50 @@ def book_list(request):
 
 @login_required
 def issue_book(request, book_id):
-    book = get_object_or_404(Book, id=book_id)
+    if request.method == 'POST':
+        book = get_object_or_404(Book, id=book_id)
 
-    if book.available:
         try:
             member = request.user.member
         except Member.DoesNotExist:
             messages.error(request, 'Member profile not found.')
             return redirect('dashboard')
 
-        Issue.objects.create(book=book, member=member)
-        book.available = False
-        book.save()
-        messages.success(request, f'"{book.title}" issued successfully.')
-    else:
-        messages.warning(request, 'This book is currently not available.')
+        active_issues = Issue.objects.filter(member=member, return_date__isnull=True).count()
+
+        if active_issues >= 2:
+            messages.warning(request, 'You can only borrow up to 2 books at a time.')
+        elif not book.available:
+            messages.warning(request, 'This book is currently not available.')
+        else:
+            Issue.objects.create(book=book, member=member)
+            book.available = False
+            book.save()
+            messages.success(request, f'"{book.title}" borrowed successfully.')
+
+    return redirect('dashboard')
+
+@login_required
+def return_book(request, issue_id):
+    if request.method == 'POST':
+        issue = get_object_or_404(Issue, id=issue_id)
+
+        if issue.member.user == request.user:
+            issue.return_date = date.today()
+            issue.book.available = True
+            issue.book.save()
+            issue.save()
+            messages.success(request, f'"{issue.book.title}" returned successfully.')
+        else:
+            messages.error(request, 'You can only return your own books.')
 
     return redirect('dashboard')
 
 
 @login_required
-def return_book(request, issue_id):
-    issue = get_object_or_404(Issue, id=issue_id)
-
-    if issue.member.user == request.user:
-        issue.return_date = date.today()  # Fixed: was incorrectly set to issue_date
-        issue.book.available = True
-        issue.book.save()
-        issue.save()
-        messages.success(request, f'"{issue.book.title}" returned successfully.')
-    else:
-        messages.error(request, 'You can only return your own books.')
-
-    return redirect('dashboard')
+def delete_book(request, book_id):
+    book = get_object_or_404(Book, id=book_id)
+    if request.method == 'POST':
+        book.delete()
+        return redirect('books')  # or wherever you want to redirect after deletion
+    return redirect('books')

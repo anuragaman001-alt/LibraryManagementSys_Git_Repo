@@ -13,7 +13,10 @@
         <a href="{% url 'dashboard' %}">Home</a>
         {% if user.is_authenticated %}
             <span>Hi, {{ user.username }}{% if user.is_staff %} (Admin){% endif %}</span>
-            <a href="{% url 'logout' %}">Logout</a>
+            <form method="POST" action="{% url 'logout' %}" style="display:inline; margin:0;">
+                {% csrf_token %}
+                <button type="submit" style="background:none;border:none;color:#e8eaf6;cursor:pointer;padding:6px 12px;border-radius:4px;font-size:1rem;">Logout</button>
+            </form>
         {% else %}
             <a href="{% url 'login' %}">Login</a>
             <a href="{% url 'register' %}">Register</a>
