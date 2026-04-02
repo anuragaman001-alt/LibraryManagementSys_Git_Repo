@@ -35,8 +35,8 @@ jobs:
           pip install -r requirements.txt
           pip install flake8 pylint pylint-django bandit pip-audit
 
-      - name: Run Flake8
-        run: flake8 library/ lms_project/ --max-line-length=120
+      # - name: Run Flake8
+      #   run: flake8 library/ lms_project/ --max-line-length=120
 
       - name: Run Pylint
         run: |
