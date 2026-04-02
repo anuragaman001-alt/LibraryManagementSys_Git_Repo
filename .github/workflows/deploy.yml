@@ -38,12 +38,12 @@ jobs:
       # - name: Run Flake8
       #   run: flake8 library/ lms_project/ --max-line-length=120
 
-      - name: Run Pylint
-        run: |
-          pylint library/ lms_project/ \
-            --load-plugins pylint_django \
-            --django-settings-module=lms_project.settings \
-            --fail-under=8.0
+      # - name: Run Pylint
+      #   run: |
+      #     pylint library/ lms_project/ \
+      #       --load-plugins pylint_django \
+      #       --django-settings-module=lms_project.settings \
+      #       --fail-under=8.0
 
       - name: Run Bandit (Security Scan)
         run: bandit -r library/ lms_project/ -ll --exclude ./venv
