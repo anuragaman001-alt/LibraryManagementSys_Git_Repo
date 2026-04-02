@@ -67,9 +67,11 @@ def dashboard(request):
             'my_books': my_books,
             'my_books_count': my_books_count,
         })
+
 # -------------------------
 # BOOK CRUD (ADMIN ONLY)
 # -------------------------
+
 
 @login_required
 def add_book(request):
@@ -166,6 +168,7 @@ def issue_book(request, book_id):
             messages.success(request, f'"{book.title}" borrowed successfully.')
 
     return redirect('dashboard')
+
 
 @login_required
 def return_book(request, issue_id):

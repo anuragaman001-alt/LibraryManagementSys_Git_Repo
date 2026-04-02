@@ -39,17 +39,13 @@ class Issue(models.Model):
 # Auto-create Member profile when a User is registered
 @receiver(post_save, sender=User)
 def create_member(sender, instance, created, **kwargs):
-    if created:
-        Member.objects.create(
+    if not created:
+        return
+    if not instance.is_staff:
+        Member.objects.get_or_create(
             user=instance,
-            name=instance.username,
-            email=instance.email or ''
-        )
-@receiver(post_save, sender=User)
-def create_member(sender, instance, created, **kwargs):
-    if created and not instance.is_staff:
-        Member.objects.create(
-            user=instance,
-            name=instance.username,
-            email=instance.email or ''
+            defaults={
+                'name': instance.get_full_name() or instance.username,
+                'email': instance.email or ''
+            }
         )
